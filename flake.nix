@@ -44,24 +44,24 @@
         ectool = with final; stdenv.mkDerivation rec {
           name = "ectool${version}";
 
-          src = ./.;
-
-          checkPhase = ''
+          postPatch = ''
             patchShebangs ./util
           '';
 
-          nativeBuildInputs = [ gcc-arm-embedded pkg-config libusb1 libftdi1 hostname ];
+          src = ./.;
 
-          depsBuildBuild = [ gcc-arm-embedded ];
-          depsBuildTarget = [ gcc-arm-embedded ];
-          depsHostHost = [ gcc-arm-embedded ];
-          buildInputs = [ gcc-arm-embedded ];
-          depsTargetTarget = [ gcc-arm-embedded ];
+          makeFlags = [
+            "INSTALL=install"
+            "PREFIX=${placeholder "out"}"
+          ];
 
-          installPhase = ''
-            ${gnumake}/bin/make test
-            CC=${gcc-arm-embedded}/bin/arm-none-eabi-gcc ${gnumake}/bin/make utils
+          buildPhase = ''
+            make utils-host
           '';
+
+          installPhase = "true";
+
+          nativeBuildInputs = [ pkg-config libusb1 libftdi1 hostname ];
         };
 
       };
